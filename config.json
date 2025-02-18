@@ -1,0 +1,8 @@
+{
+    "telegram_token": "your-telegram-bot-token",
+    "chat_id": "your-chat-id",
+    "solar_api_ip": "192.168.1.131",
+    "condition_duration_min": 3,
+    "check_interval_min": 1
+  }
+  

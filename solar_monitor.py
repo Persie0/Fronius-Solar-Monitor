@@ -42,7 +42,7 @@ def send_telegram_message(message):
         payload = {"chat_id": CHAT_ID, "text": message}
         response = requests.post(url, json=payload)
         response.raise_for_status()
-        logging.info("Telegram message sent successfully")
+        logging.info("Telegram message sent successfully: %s", message)
     except requests.exceptions.RequestException as e:
         logging.error(f"Failed to send Telegram message: {e}")
 

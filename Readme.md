@@ -1,14 +1,13 @@
-# Solar Monitoring Bot
+# Fronius Solar Monitor
 
-This Python script monitors solar power data from the **Fronius Solar API** and sends alerts via Telegram when specific conditions are met. It checks for:
-- **Excess solar production** (when battery SOC > 97% and solar input is higher than load consumption).
-- **High power consumption** (when consumption exceeds solar input and SOC < 97%).
+This Python script monitors solar power data from the **Fronius Solar API** and sends Telegram alerts when the battery is full or no longer full.
 
 ## 🌍 Why This Project?
-In some regions, you are not allowed to feed excess solar energy into the grid beyond a certain amount. This script helps you monitor energy usage so you can turn off/on devices accordingly to stay within regulations and optimize energy consumption.
-You can use the code in your own projects to e.g. automate turning on/off things.
+
+In some regions (like mine), feeding excess solar energy into the grid beyond a certain limit results in no compensation. This script helps monitor energy usage, enabling you to turn devices on or off accordingly, optimizing energy consumption. You can also integrate this code into your own automation projects.
 
 ## 🚀 Features
+
 - Dynamic configuration via `config.json`
 - Automatic Telegram notifications
 - Logging for debugging and monitoring
@@ -18,47 +17,62 @@ You can use the code in your own projects to e.g. automate turning on/off things
 ## 🔧 Setup Instructions
 
 ### 1️⃣ Install Dependencies
+
 ```bash
 pip install requests
 ```
 
-### 2️⃣ Set Up Fronius API
-The **Solar API** needs to be enabled on **Fronius GEN24** devices. If the API is disabled, any request will return a **404-HTTP error** with the message: _"Solar API disabled by customer config"._
+### 2️⃣ Enable the Fronius Solar API
+
+The **Solar API** must be enabled on **Fronius GEN24** devices. If disabled, API requests return a **404 error** with the message: _"Solar API disabled by customer config."_
 
 #### 🔹 How to Enable the Solar API:
+
 1. **Access the Fronius Web Interface:**
-   - Open a browser and enter the IP address of your Fronius inverter. You can find this IP:
-     - In the **router's web interface** (look for your inverter's name in the device list).
-     - If you set the IP during setup, use that.
-     - With network scanner tools / apps
-![Router](docs/router.jpg)
-2. Navigate to: **Communication → Solar API**.
-![Solar API](docs/pv.jpg)
-3. Enable the **Solar API** feature.
-4. Save settings.
+   - Open a browser and enter your Fronius inverter's IP address. You can find this IP by:
+     - Checking your **router's web interface** (look for the inverter in the device list).
+     - Using the IP set during installation.
+     - Scanning your network with a tool or app.
+   
+   ![Router](docs/router.jpg)
+
+2. **Enable the API:**
+   - Navigate to **Communication → Solar API**.
+   - Enable the **Solar API**.
+   - Save your settings.
+   
+   ![Solar API](docs/pv.jpg)
 
 ---
 
 ### 3️⃣ Create a Telegram Bot
-(A more in depth tutorial is [here](https://core.telegram.org/bots/tutorial#obtain-your-bot-token)
+
+A more detailed tutorial is available [here](https://core.telegram.org/bots/tutorial#obtain-your-bot-token).
+
 1. Open Telegram and search for **@BotFather**.
-2. Send `/newbot` and follow the instructions.
+2. Send `/newbot` and follow the setup instructions.
 3. Copy the **Bot Token** and paste it into `config.json`.
-4. Add your bot to a group and get the **Chat ID** by opening this url in your browser, replace \<TOKEN> with your actual token.
+4. Add your bot to a group and retrieve the **Chat ID** by opening the following URL in your browser (replace `<TOKEN>` with your bot token):
+
    ```bash
    https://api.telegram.org/bot<TOKEN>/getUpdates
    ```
-![Respose](docs/tgchatid.png)
-### ➡️ Send Messages to a Private Chat Instead of a Group
-If you prefer to receive alerts as **private messages** instead of in a group:
-1. Start a chat with your bot.
+   
+   ![Response](docs/tgchatid.png)
+
+#### ➡️ Sending Messages to a Private Chat Instead of a Group
+
+1. Start a private chat with your bot.
 2. Send any message.
-3. Get your chat ID by opening this url in your browser
+3. Retrieve your chat ID using:
+
    ```bash
    https://api.telegram.org/bot<TOKEN>/getUpdates
    ```
-4. Copy the chat ID (it will be a **positive number**, unlike group IDs which are negative).
-5. Replace the `chat_id` value in `config.json` with your personal chat ID:
+
+4. Copy the chat ID (a **positive number**; group IDs are negative).
+5. Update `config.json` with your personal chat ID:
+
    ```json
    {
      "telegram_token": "your-telegram-bot-token",
@@ -68,8 +82,12 @@ If you prefer to receive alerts as **private messages** instead of in a group:
    }
    ```
 
+---
+
 ### 4️⃣ Configure `config.json`
+
 Edit `config.json` to match your setup:
+
 ```json
 {
   "telegram_token": "6467835642:AAAAAl99Ue14-e2cPqF79KSdOol5-aTr123",
@@ -80,8 +98,10 @@ Edit `config.json` to match your setup:
 ```
 
 ### 5️⃣ Run the Script
-- rename first the **_config.json** to **config.json** (remove the leading underscore)
-- then run the script:
+
+- Rename `_config.json` to `config.json` (remove the leading underscore).
+- Execute the script:
+
 ```bash
 python solar_monitor.py
 ```
@@ -89,11 +109,15 @@ python solar_monitor.py
 ---
 
 ## 📡 Example API Response
-Open in your browser, but change 192.168.1.131 to your own IP adress.
+
+To check your Fronius inverter's power data, enter the following URL in your browser (replace `192.168.1.131` with your inverter's IP):
+
 ```bash
 http://192.168.1.131/solar_api/v1/GetPowerFlowRealtimeData.fcgi
 ```
-This is what this Fronius solar API request returns (example):
+
+### Sample API Response:
+
 ```json
 {
   "Body": {
@@ -101,44 +125,21 @@ This is what this Fronius solar API request returns (example):
       "Inverters": {
         "1": {
           "Battery_Mode": "battery full",
-          "DT": 1,
-          "E_Day": null,
-          "E_Total": 5691772.250555555,
-          "E_Year": null,
-          "P": 4201.64013671875,
+          "P": 4201.64,
           "SOC": 100
         }
       },
-      "SecondaryMeters": {},
       "Site": {
-        "BackupMode": false,
-        "BatteryStandby": true,
-        "E_Day": null,
-        "E_Total": 5691772.250555555,
-        "E_Year": null,
-        "Meter_Location": "grid",
-        "Mode": "bidirectional",
-        "P_Akku": -0.3481009304523468,
         "P_Grid": 740.7,
-        "P_Load": -4942.34013671875,
-        "P_PV": 4298.144073486328,
-        "rel_Autonomy": 85.01317231290854,
+        "P_Load": -4942.34,
+        "P_PV": 4298.14,
+        "rel_Autonomy": 85.01,
         "rel_SelfConsumption": 100
-      },
-      "Smartloads": {
-        "OhmpilotEcos": {},
-        "Ohmpilots": {}
-      },
-      "Version": "13"
+      }
     }
   },
   "Head": {
-    "RequestArguments": {},
-    "Status": {
-      "Code": 0,
-      "Reason": "",
-      "UserMessage": ""
-    },
+    "Status": { "Code": 0 },
     "Timestamp": "2025-02-18T14:50:13+00:00"
   }
 }
@@ -147,22 +148,26 @@ This is what this Fronius solar API request returns (example):
 ---
 
 ## 📜 API Documentation
-For a more request types and a detailed API reference for the **Fronius Solar API**, check the official documentation:
-📄 **[Fronius Solar API Docs (PDF)](docs/docs.pdf)**
+
+For additional API requests and a detailed reference, check out:
+- **[fronius-json-tools](https://github.com/akleber/fronius-json-tools)**
+- **[Fronius Solar API Docs (PDF)](docs/docs.pdf)**
 
 ### 🔹 Web Interface Screenshot
+
 ![Web Interface](docs/webui.jpg)
 
 ### 🔹 API Response Equivalent
-![API Response](docs/jsonmarked.jpg)
 
+![API Response](docs/jsonmarked.jpg)
 
 ---
 
 ## 🛠️ Troubleshooting
-- If the script doesn't run, check that your **API IP address** is correct.
-- Make sure your Telegram bot is added to the correct group or private chat.
-- If you get a **404 error**, ensure the **Solar API is enabled** in the Fronius Web UI.
+
+- Ensure your **API IP address** is correct.
+- Verify your Telegram bot is added to the correct group or chat.
+- If you get a **404 error**, check that the **Solar API is enabled** in the Fronius Web UI.
 
 **Happy Monitoring! 🌞⚡**
 

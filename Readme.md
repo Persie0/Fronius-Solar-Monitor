@@ -78,7 +78,9 @@ A more detailed tutorial is available [here](https://core.telegram.org/bots/tuto
      "telegram_token": "your-telegram-bot-token",
      "chat_id": "your-personal-chat-id",
      "solar_api_ip": "xxx.xxx.xxx.xxx",
-     "check_interval_min": 1
+     "check_interval_min": 1,
+     "consecutive_full_checks": 1,
+     "consecutive_not_full_checks": 4
    }
    ```
 
@@ -93,9 +95,24 @@ Edit `config.json` to match your setup:
   "telegram_token": "6467835642:AAAAAl99Ue14-e2cPqF79KSdOol5-aTr123",
   "chat_id": "-1048737232455",
   "solar_api_ip": "192.168.1.131",
-  "check_interval_min": 1
+  "check_interval_min": 1,
+  "consecutive_full_checks": 1,
+  "consecutive_not_full_checks": 4
 }
 ```
+
+#### Configuration Parameters Explained:
+
+- `telegram_token`: Your Telegram bot's authentication token obtained from BotFather
+- `chat_id`: The ID of the chat/group where notifications will be sent (negative for groups, positive for private chats)
+- `solar_api_ip`: The IP address of your Fronius inverter on your local network
+- `check_interval_min`: How often to check the battery status (in minutes)
+- `consecutive_full_checks`: Number of consecutive "battery full" readings required before sending a notification (reduces false positives)
+- `consecutive_not_full_checks`: Number of consecutive "battery not full" readings required before sending a notification
+
+The `consecutive...checks` parameters help prevent notification spam from momentary fluctuations. Higher values mean more stable notifications but slower response time.
+
+
 
 ### 5️⃣ Run the Script
 

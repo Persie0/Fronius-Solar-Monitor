@@ -23,9 +23,15 @@ API_URL = f"http://{SOLAR_API_IP}/solar_api/v1/GetPowerFlowRealtimeData.fcgi"
 # Convert minutes to seconds
 CHECK_INTERVAL = config["check_interval_min"] * 60
 
+# Get consecutive checks required from config, default to 1 if not specified
+CONSECUTIVE_FULL_CHECKS = config.get("consecutive_full_checks", 1)
+CONSECUTIVE_NOT_FULL_CHECKS = config.get("consecutive_not_full_checks", 1)
+
 # Variables to track battery state
 battery_full_alert_sent = False
 battery_not_full_alert_sent = False
+consecutive_full_count = 0
+consecutive_not_full_count = 0
 
 # Set up logging
 log_path = os.path.join(script_dir, "solar_monitor.log")
@@ -59,6 +65,7 @@ def fetch_solar_data():
 def check_solar_data():
     """Checks battery status and sends alerts if needed."""
     global battery_full_alert_sent, battery_not_full_alert_sent
+    global consecutive_full_count, consecutive_not_full_count
     data = fetch_solar_data()
 
     if not data:
@@ -68,11 +75,18 @@ def check_solar_data():
         battery_mode = data["Body"]["Data"]["Inverters"]["1"].get("Battery_Mode", "")
         battery_is_full = battery_mode == "battery full"
 
-        if battery_is_full and not battery_full_alert_sent:
+        if battery_is_full:
+            consecutive_full_count += 1
+            consecutive_not_full_count = 0
+        else:
+            consecutive_not_full_count += 1
+            consecutive_full_count = 0
+
+        if consecutive_full_count >= CONSECUTIVE_FULL_CHECKS and not battery_full_alert_sent:
             send_telegram_message("Battery is now full!")
             battery_full_alert_sent = True
             battery_not_full_alert_sent = False
-        elif not battery_is_full and not battery_not_full_alert_sent:
+        elif consecutive_not_full_count >= CONSECUTIVE_NOT_FULL_CHECKS and not battery_not_full_alert_sent:
             send_telegram_message("Battery is no longer full")
             battery_not_full_alert_sent = True
             battery_full_alert_sent = False

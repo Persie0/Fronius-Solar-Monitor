@@ -82,6 +82,8 @@ Edit `config.json` to match your setup:
 ```
 
 ### 5️⃣ Run the Script
+- rename first the **_config.json** to **config.json** (remove the leading underscore)
+- then run the script:
 ```bash
 python solar_monitor.py
 ```

@@ -2,9 +2,14 @@ import time
 import json
 import requests
 import logging
+import os
+
+# Get directory of this script
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Load configuration from JSON
-with open("config.json", "r") as file:
+config_path = os.path.join(script_dir, "config.json")
+with open(config_path, "r") as file:
     config = json.load(file)
 
 # Telegram Bot details
@@ -16,19 +21,16 @@ SOLAR_API_IP = config["solar_api_ip"]
 API_URL = f"http://{SOLAR_API_IP}/solar_api/v1/GetPowerFlowRealtimeData.fcgi"
 
 # Convert minutes to seconds
-CONDITION_DURATION = config["condition_duration_min"] * 60
 CHECK_INTERVAL = config["check_interval_min"] * 60
 
-# Variables to track the condition state
-excess_condition_start = None
-excess_alert_sent = False
-
-consumption_condition_start = None
-consumption_alert_sent = False
+# Variables to track battery state
+battery_full_alert_sent = False
+battery_not_full_alert_sent = False
 
 # Set up logging
+log_path = os.path.join(script_dir, "solar_monitor.log")
 logging.basicConfig(
-    filename="solar_monitor.log",
+    filename=log_path,
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -55,50 +57,32 @@ def fetch_solar_data():
         return None
 
 def check_solar_data():
-    """Checks solar power conditions and sends alerts if needed."""
-    global excess_condition_start, excess_alert_sent, consumption_condition_start, consumption_alert_sent
+    """Checks battery status and sends alerts if needed."""
+    global battery_full_alert_sent, battery_not_full_alert_sent
     data = fetch_solar_data()
 
     if not data:
         return
 
     try:
-        soc = data["Body"]["Data"]["Inverters"]["1"].get("SOC", 0)
-        p_pv = data["Body"]["Data"]["Site"].get("P_PV", 0)
-        p_load = abs(data["Body"]["Data"]["Site"].get("P_Load", 0))
+        battery_mode = data["Body"]["Data"]["Inverters"]["1"].get("Battery_Mode", "")
+        battery_is_full = battery_mode == "battery full"
 
-        # Define conditions
-        excess_condition_met = soc > 97 and p_pv > p_load
-        consumption_condition_met = p_load > p_pv and soc < 97
-        current_time = time.time()
-
-        # Handle excess solar production alert
-        if excess_condition_met:
-            if excess_condition_start is None:
-                excess_condition_start = current_time
-            if (current_time - excess_condition_start >= CONDITION_DURATION) and (not excess_alert_sent):
-                send_telegram_message("Warning: Excess solar production or too little consumption!")
-                excess_alert_sent = True
-        else:
-            excess_condition_start = None
-            excess_alert_sent = False
-
-        # Handle excessive consumption alert
-        if consumption_condition_met:
-            if consumption_condition_start is None:
-                consumption_condition_start = current_time
-            if (current_time - consumption_condition_start >= CONDITION_DURATION) and (not consumption_alert_sent):
-                send_telegram_message("Warning: Consuming too much power!")
-                consumption_alert_sent = True
-        else:
-            consumption_condition_start = None
-            consumption_alert_sent = False
+        if battery_is_full and not battery_full_alert_sent:
+            send_telegram_message("Battery is now full!")
+            battery_full_alert_sent = True
+            battery_not_full_alert_sent = False
+        elif not battery_is_full and not battery_not_full_alert_sent:
+            send_telegram_message("Battery is no longer full")
+            battery_not_full_alert_sent = True
+            battery_full_alert_sent = False
 
     except KeyError as e:
         logging.error(f"Missing data field: {e}")
 
 if __name__ == "__main__":
     logging.info("Starting Solar Monitoring Bot...")
+    send_telegram_message("Starting Solar Monitoring Bot...")
     while True:
         check_solar_data()
         time.sleep(CHECK_INTERVAL)

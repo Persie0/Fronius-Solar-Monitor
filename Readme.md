@@ -48,7 +48,7 @@ The **Solar API** needs to be enabled on **Fronius GEN24** devices. If the API i
    ```bash
    https://api.telegram.org/bot<TOKEN>/getUpdates
    ```
-
+![Respose](docs/tgchatid.png)
 ### ➡️ Send Messages to a Private Chat Instead of a Group
 If you prefer to receive alerts as **private messages** instead of in a group:
 1. Start a chat with your bot.
@@ -64,7 +64,6 @@ If you prefer to receive alerts as **private messages** instead of in a group:
      "telegram_token": "your-telegram-bot-token",
      "chat_id": "your-personal-chat-id",
      "solar_api_ip": "xxx.xxx.xxx.xxx",
-     "condition_duration_min": 3,
      "check_interval_min": 1
    }
    ```
@@ -76,7 +75,6 @@ Edit `config.json` to match your setup:
   "telegram_token": "6467835642:AAAAAl99Ue14-e2cPqF79KSdOol5-aTr123",
   "chat_id": "-1048737232455",
   "solar_api_ip": "192.168.1.131",
-  "condition_duration_min": 3,
   "check_interval_min": 1
 }
 ```
@@ -91,24 +89,66 @@ python solar_monitor.py
 ---
 
 ## 📡 Example API Response
-This is what the Fronius solar API returns:
+Open in your browser, but change 192.168.1.131 to your own IP adress.
+```bash
+http://192.168.1.131/solar_api/v1/GetPowerFlowRealtimeData.fcgi
+```
+This is what this Fronius solar API request returns (example):
 ```json
 {
   "Body": {
     "Data": {
       "Inverters": {
         "1": {
-          "SOC": 98
+          "Battery_Mode": "battery full",
+          "DT": 1,
+          "E_Day": null,
+          "E_Total": 5691772.250555555,
+          "E_Year": null,
+          "P": 4201.64013671875,
+          "SOC": 100
         }
       },
+      "SecondaryMeters": {},
       "Site": {
-        "P_PV": 5000,
-        "P_Load": 3000
-      }
+        "BackupMode": false,
+        "BatteryStandby": true,
+        "E_Day": null,
+        "E_Total": 5691772.250555555,
+        "E_Year": null,
+        "Meter_Location": "grid",
+        "Mode": "bidirectional",
+        "P_Akku": -0.3481009304523468,
+        "P_Grid": 740.7,
+        "P_Load": -4942.34013671875,
+        "P_PV": 4298.144073486328,
+        "rel_Autonomy": 85.01317231290854,
+        "rel_SelfConsumption": 100
+      },
+      "Smartloads": {
+        "OhmpilotEcos": {},
+        "Ohmpilots": {}
+      },
+      "Version": "13"
     }
+  },
+  "Head": {
+    "RequestArguments": {},
+    "Status": {
+      "Code": 0,
+      "Reason": "",
+      "UserMessage": ""
+    },
+    "Timestamp": "2025-02-18T14:50:13+00:00"
   }
 }
 ```
+
+---
+
+## 📜 API Documentation
+For a more request types and a detailed API reference for the **Fronius Solar API**, check the official documentation:
+📄 **[Fronius Solar API Docs (PDF)](docs/docs.pdf)**
 
 ### 🔹 Web Interface Screenshot
 ![Web Interface](docs/webui.jpg)
@@ -116,11 +156,6 @@ This is what the Fronius solar API returns:
 ### 🔹 API Response Equivalent
 ![API Response](docs/jsonmarked.jpg)
 
----
-
-## 📜 API Documentation
-For a detailed API reference for the **Fronius Solar API**, check the official documentation:
-📄 **[Fronius Solar API Docs (PDF)](docs/docs.pdf)**
 
 ---
 

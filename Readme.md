@@ -140,11 +140,6 @@ For a headless setup on Raspberry Pi running DietPi:
    ```bash
    sudo bash setup_autostart.sh 
    ```
-   
-   This script will:
-   - Copy the included autostart script to the proper DietPi location
-   - Make it executable
-   - Enable autostart in DietPi
 
 5. **Reboot to test**:
    ```bash

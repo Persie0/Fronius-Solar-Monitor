@@ -1,42 +1,45 @@
 #!/bin/bash
-# Setup autostart for Fronius Solar Monitor using Crontab @reboot
 
-SCRIPT_DIR="/root/Fronius-Solar-Monitor"
-LOG_FILE="$SCRIPT_DIR/solar_monitor.log"
-CRON_JOB="@reboot sleep 30 && cd $SCRIPT_DIR && python3 solar_monitor.py >> $LOG_FILE 2>&1 &"
+# Define variables
+PROJECT_DIR="/root/Fronius-Solar-Monitor"
+SERVICE_NAME="solar_monitor"
+SCRIPT_PATH="$PROJECT_DIR/solar_monitor.py"
+LOG_FILE="$PROJECT_DIR/solar_monitor.log"
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
-echo "Setting up Crontab autostart for Fronius Solar Monitor..."
+# Step 1: Create the systemd service file
+echo "Creating systemd service file..."
 
-# Ensure script directory exists
-if [ ! -d "$SCRIPT_DIR" ]; then
-    echo "Error: $SCRIPT_DIR not found! Make sure the script is in the correct location."
-    exit 1
-fi
+cat << EOF > $SERVICE_FILE
+[Unit]
+Description=Fronius Solar Monitor
+After=network.target
 
-# Ensure config file exists
-if [ ! -f "$SCRIPT_DIR/config.json" ]; then
-    if [ -f "$SCRIPT_DIR/_config.json" ]; then
-        cp "$SCRIPT_DIR/_config.json" "$SCRIPT_DIR/config.json"
-        echo "$(date): Created config.json from template" >> "$LOG_FILE"
-    else
-        echo "$(date): ERROR - No config file found!" >> "$LOG_FILE"
-        exit 1
-    fi
-fi
+[Service]
+ExecStart=/usr/bin/python3 $SCRIPT_PATH
+WorkingDirectory=$PROJECT_DIR
+StandardOutput=append:$LOG_FILE
+StandardError=append:$LOG_FILE
+Restart=always
+User=root
 
-# Install dependencies if needed
-if ! command -v python3 &>/dev/null; then
-    echo "$(date): Python3 not found. Installing..." >> "$LOG_FILE"
-    apt-get update && apt-get install -y python3 python3-pip
-fi
+[Install]
+WantedBy=multi-user.target
+EOF
 
-if [ ! -f "$SCRIPT_DIR/.packages_installed" ]; then
-    echo "$(date): Installing required packages..." >> "$LOG_FILE"
-    pip3 install requests
-    touch "$SCRIPT_DIR/.packages_installed"
-fi
+# Step 2: Reload systemd, enable and start the service
+echo "Reloading systemd and starting the service..."
 
-# Add crontab job if not already added
-(crontab -l 2>/dev/null | grep -Fq "$CRON_JOB") || (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+sudo systemctl daemon-reload
+sudo systemctl enable $SERVICE_NAME
+sudo systemctl start $SERVICE_NAME
 
-echo "Crontab autostart setup complete! Reboot to apply changes."
+# Step 3: Verify the service is running
+echo "Verifying if the service is running..."
+systemctl status $SERVICE_NAME
+
+# Step 4: Inform the user
+echo "Solar Monitor setup complete! The service is now running."
+echo "To check logs, use: journalctl -u $SERVICE_NAME -f"
+echo "To restart the service, use: sudo systemctl restart $SERVICE_NAME"
+echo "To stop the service, use: sudo systemctl stop $SERVICE_NAME"

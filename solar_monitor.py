@@ -87,7 +87,7 @@ def check_solar_data():
 
     try:
         battery_mode = data["Body"]["Data"]["Inverters"]["1"].get("Battery_Mode", "")
-        battery_soc = data["Body"]["Data"].get("SOC", "Unknown")
+        battery_soc = data["Body"]["Data"]["Inverters"]["1"].get("SOC", "Unknown")
         battery_is_full = battery_mode == "battery full"
 
         if battery_is_full:

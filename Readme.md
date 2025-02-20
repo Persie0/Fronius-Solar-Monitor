@@ -1,96 +1,85 @@
-# Fronius Solar Monitor
+# Fronius Solar Monitor 🌞⚡
 
 This Python script monitors solar power data from the **Fronius Solar API** and sends Telegram alerts when the battery is full or no longer full.
 
-## 🌍 Why This Project?
+## Overview
 
-In some regions (like mine), feeding excess solar energy into the grid beyond a certain limit results in no compensation. This script helps monitor energy usage, enabling you to turn devices on or off accordingly, optimizing energy consumption. You can also integrate this code into your own automation projects.
+**Fronius Solar Monitor** helps you optimize your solar energy consumption by alerting you when your battery reaches full capacity or drops below it. Perfect for regions where excess energy fed to the grid isn't compensated beyond certain limits.
 
-## 🚀 Features
+## 🌍 Why Use This Monitor?
 
-- Dynamic configuration via `config.json`
-- Automatic Telegram notifications
-- Logging for debugging and monitoring
+- **Cost Optimization**: Maximize self-consumption when excess grid feed-in isn't compensated
+- **Smart Energy Management**: Know exactly when to turn devices on/off
+- **Integration Potential**: Use as part of your larger home automation system
+
+## 🚀 Key Features
+
+- Real-time battery status monitoring via Fronius Solar API
+- Customizable alert thresholds and check intervals
+- Telegram notifications to your phone or group
+- Comprehensive logging for system analysis
+- Multi-language support (English, German)
 
 ---
 
-## 🔧 Setup Instructions
+## 🔧 Installation & Setup
 
-### 1️⃣ Install Dependencies
+### Prerequisites
+
+- Python 3.x
+- A Fronius inverter with Solar API enabled
+- Telegram account
+
+### Step 1: Install Dependencies
 
 ```bash
 pip install requests
 ```
 
-### 2️⃣ Enable the Fronius Solar API
+### Step 2: Enable the Fronius Solar API
 
-The **Solar API** must be enabled on **Fronius GEN24** devices. If disabled, API requests return a **404 error** with the message: _"Solar API disabled by customer config."_
+The **Solar API** must be enabled on **Fronius GEN24** devices to avoid 404 errors.
 
-#### 🔹 How to Enable the Solar API:
+#### How to Enable:
 
-1. **Access the Fronius Web Interface:**
-   - Open a browser and enter your Fronius inverter's IP address. You can find this IP by:
-     - Checking your **router's web interface** (look for the inverter in the device list).
-     - Using the IP set during installation.
-     - Scanning your network with a tool or app.
+1. **Access the Fronius Web Interface**
+   - Enter your Fronius inverter's IP address in a browser
+   - Find the IP through:
+     - Your router's device list
+     - The IP configured during installation
+     - Network scanning tools
    
    ![Router](docs/router.jpg)
 
-2. **Enable the API:**
-   - Navigate to **Communication → Solar API**.
-   - Enable the **Solar API**.
-   - Save your settings.
+2. **Enable the API**
+   - Navigate to **Communication → Solar API**
+   - Toggle the **Solar API** setting to enabled
+   - Save your changes
    
    ![Solar API](docs/pv.jpg)
 
----
+### Step 3: Create a Telegram Bot
 
-### 3️⃣ Create a Telegram Bot
+1. **Create Your Bot**
+   - Open Telegram and search for **@BotFather**
+   - Send `/newbot` and follow the instructions
+   - Save the **Bot Token** provided
 
-A more detailed tutorial is available [here](https://core.telegram.org/bots/tutorial#obtain-your-bot-token).
+2. **Configure Chat ID**
+   - For a **group chat**: Add your bot to a group
+   - For a **private chat**: Start a conversation with your bot
+   - Send any message to the bot
+   - Get your Chat ID by opening:
+     ```
+     https://api.telegram.org/bot<TOKEN>/getUpdates
+     ```
+   - Note: Group chat IDs are negative numbers; private chat IDs are positive
 
-1. Open Telegram and search for **@BotFather**.
-2. Send `/newbot` and follow the setup instructions.
-3. Copy the **Bot Token** and paste it into `config.json`.
-4. Add your bot to a group and retrieve the **Chat ID** by opening the following URL in your browser (replace `<TOKEN>` with your bot token):
-
-   ```bash
-   https://api.telegram.org/bot<TOKEN>/getUpdates
-   ```
-   
    ![Response](docs/tgchatid.png)
 
-#### ➡️ Sending Messages to a Private Chat Instead of a Group
+### Step 4: Configure the Application
 
-1. Start a private chat with your bot.
-2. Send any message.
-3. Retrieve your chat ID using:
-
-   ```bash
-   https://api.telegram.org/bot<TOKEN>/getUpdates
-   ```
-
-4. Copy the chat ID (a **positive number**; group IDs are negative).
-5. Update `config.json` with your personal chat ID:
-
-   ```json
-{
-  "telegram_token": "your_bot_token",
-  "chat_id": "your_chat_id",
-  "solar_api_ip": "your_solar_api_ip",
-  "check_interval_min": 5,
-  "consecutive_full_checks": 1,
-  "consecutive_not_full_checks": 1,
-  "language": "en"
-}
-
-   ```
-
----
-
-### 4️⃣ Configure `config.json`
-
-Edit `config.json` to match your setup:
+Rename `_config.json` to `config.json` and configure it with your settings:
 
 ```json
 {
@@ -104,38 +93,77 @@ Edit `config.json` to match your setup:
 }
 ```
 
-#### Configuration Parameters Explained:
+#### Configuration Parameters:
 
-- `telegram_token`: Your Telegram bot's authentication token obtained from BotFather
-- `chat_id`: The ID of the chat/group where notifications will be sent (negative for groups, positive for private chats)
-- `solar_api_ip`: The IP address of your Fronius inverter on your local network
-- `check_interval_min`: How often to check the battery status (in minutes)
-- `consecutive_full_checks`: Number of consecutive "battery full" readings required before sending a notification (reduces false positives)
-- `consecutive_not_full_checks`: Number of consecutive "battery not full" readings required before sending a notification
-- `language`: Language in which the notifications will be in, currently supported languages are "en" (English) and "de" (German)
+| Parameter | Description | Recommended Value |
+|-----------|-------------|-------------------|
+| `telegram_token` | Your Telegram bot token | - |
+| `chat_id` | Target chat ID for notifications | Negative for groups, positive for private chats |
+| `solar_api_ip` | IP address of Fronius inverter | Local network IP |
+| `check_interval_min` | Time between checks (minutes) | 1-5 |
+| `consecutive_full_checks` | Readings needed before "battery full" alert | 1-3 |
+| `consecutive_not_full_checks` | Readings needed before "battery not full" alert | 2-5 |
+| `language` | Notification language | "en" or "de" |
 
-The `consecutive...checks` parameters help prevent notification spam from momentary fluctuations. Higher values mean more stable notifications but slower response time.
+> **Note:** Higher `consecutive_checks` values reduce false alerts but increase notification delay.
 
+### Step 5: Run the Monitor
 
-
-### 5️⃣ Run the Script
-
-- Rename `_config.json` to `config.json` (remove the leading underscore).
-- Execute the script:
+#### Manual Execution
 
 ```bash
 python solar_monitor.py
 ```
 
+#### Automatic Startup on Raspberry Pi (DietPi)
+
+For a headless setup on Raspberry Pi running DietPi:
+
+1. **Install DietPi**: Download from [dietpi.com](https://dietpi.com/docs/install/)
+
+2. **Access via SSH**:
+   ```bash
+   ssh root@192.168.1.132  # Replace with your Pi's IP
+   ```
+
+3. **Install Requirements**:
+   - Install Git and Python via dietpi-software
+   - Clone the repository:
+     ```bash
+     git clone https://github.com/Persie0/Fronius-Solar-Monitor.git
+     cd Fronius-Solar-Monitor
+     ```
+
+4. **Setup Auto-Start (Quick Method)**:
+   
+   Simply run the setup script included in the repository:
+   ```bash
+   sudo bash setup_autostart.sh
+   ```
+   
+   This script will:
+   - Copy the included autostart script to the proper DietPi location
+   - Make it executable
+   - Enable autostart in DietPi
+
+5. **Reboot to test**:
+   ```bash
+   reboot
+   ```
+
+> **Note:** If you need to modify the autostart behavior, you can edit `/var/lib/dietpi/dietpi-autostart/custom.sh` directly.
+
 ---
 
-## 📡 Example API Response
+## 📡 Data Monitoring & API
 
-To check your Fronius inverter's power data, enter the following URL in your browser (replace `192.168.1.131` with your inverter's IP):
+### Example API Request
 
-```bash
+To manually check your system's status, enter in your browser:
+```
 http://192.168.1.131/solar_api/v1/GetPowerFlowRealtimeData.fcgi
 ```
+(Replace with your inverter's IP)
 
 ### Sample API Response:
 
@@ -166,29 +194,46 @@ http://192.168.1.131/solar_api/v1/GetPowerFlowRealtimeData.fcgi
 }
 ```
 
----
+### Data Visualization
 
-## 📜 API Documentation
-
-For additional API requests and a detailed reference, check out:
-- **[fronius-json-tools](https://github.com/akleber/fronius-json-tools)**
-- **[Fronius Solar API Docs (PDF)](docs/docs.pdf)**
-
-### 🔹 Web Interface Screenshot
-
+#### Web Interface
 ![Web Interface](docs/webui.jpg)
 
-### 🔹 API Response Equivalent
-
+#### API Response Values Explained
 ![API Response](docs/jsonmarked.jpg)
 
----
+### Power Flow Interpretation:
+- **P_Grid**: Power from/to grid (positive = importing; negative = exporting)
+- **P_Load**: Current power consumption (negative value)
+- **P_PV**: Current solar production
+- **SOC**: Battery state of charge (percentage)
+- **rel_Autonomy**: Percentage of current usage from your own sources
+- **rel_SelfConsumption**: Percentage of produced energy used locally
+
+## 📚 Additional Resources
+
+For detailed API documentation:
+- [fronius-json-tools](https://github.com/akleber/fronius-json-tools)
+- [Fronius Solar API Documentation (PDF)](docs/docs.pdf)
 
 ## 🛠️ Troubleshooting
 
-- Ensure your **API IP address** is correct.
-- Verify your Telegram bot is added to the correct group or chat.
-- If you get a **404 error**, check that the **Solar API is enabled** in the Fronius Web UI.
+| Issue | Solution |
+|-------|----------|
+| 404 Error | Verify Solar API is enabled in Fronius Web UI |
+| No Telegram messages | Check bot token and chat ID configuration |
+| Connection refused | Verify inverter IP address and network connectivity |
+| Script crashes | Check logs for details; ensure Python dependencies are installed |
 
-**Happy Monitoring! 🌞⚡**
+---
 
+## 📋 System Requirements
+
+- **Supported Inverters**: Fronius GEN24 series
+- **Operating System**: Any Python-compatible OS (Linux recommended)
+- **Python**: 3.6 or higher
+- **Network**: Local network access to Fronius inverter
+
+---
+
+**Happy Solar Monitoring! 🌞⚡**

@@ -190,6 +190,16 @@ For a headless setup on Raspberry Pi running DietPi or (maybe) also other Linux 
    sudo reboot
    ```
 
+8. **Update to latest**:
+To update to the latest version run in the Fronius-Solar-Monitor folder:
+   ```bash
+   git pull origin main
+   ```
+   After updating, restart the service:
+   ```bash
+   sudo systemctl restart solar_monitor
+   ```
+
 
 ---
 

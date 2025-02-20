@@ -56,8 +56,6 @@ logging.basicConfig(
 def send_telegram_message(message):
     """Sends a message via Telegram Bot."""
     try:
-        timestamp = time.strftime("%H:%M:%S")
-        message = f"[{timestamp}] {message}"
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {"chat_id": CHAT_ID, "text": message}
         response = requests.post(url, json=payload)

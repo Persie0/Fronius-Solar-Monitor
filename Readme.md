@@ -127,36 +127,62 @@ For a headless setup on Raspberry Pi running DietPi or (maybe) also other Linux 
    ssh root@192.168.1.132  # Replace with your Pi's IP
    ```
 
-3. **Install Requirements**:
-   - Install Git and Python via dietpi-software.
-   - Clone the repository:
-     ```bash
-     git clone https://github.com/Persie0/Fronius-Solar-Monitor.git
-     cd Fronius-Solar-Monitor
-     ```
+3. **Install Git and Python** via `dietpi-software` (or your package manager if using a different Linux distribution).
+   
+4. **Clone the repository** and navigate to the project directory:
 
-4. **Setup Auto-Start**:
+   ```bash
+   git clone https://github.com/Persie0/Fronius-Solar-Monitor.git
+   cd Fronius-Solar-Monitor
+   ```
+
+5. **Verify the project directory**:
+   To ensure you're in the correct directory, run the following command:
+   
+   ```bash
+   pwd
+   ```
+   
+   If the output is **not** `/root/Fronius-Solar-Monitor`, you will need to update the `PROJECT_DIR` variable in the setup configuration. Edit the script to reflect the correct path.
+
+   Example:
+   ```bash
+   nano /otherpath/Fronius-Solar-Monitor/setup_autostart.sh
+   ```
+
+   Update the line:
+   ```bash
+   PROJECT_DIR="/otherpath/Fronius-Solar-Monitor"
+   ```
+
+
+6. **Setup Auto-Start**:
    Simply run the setup script included in the repository:
    ```bash
    sudo bash setup_autostart.sh 
    ```
 
-5. **Configure the bot**:
+7. **Configure the bot**:
    Edit the `config.json` file to include your bot's token, chat ID, and inverter's IP address.
+   ```bash
+   nano config.json
+   ```
+   then copy and paste your configured config.json into it. Then Ctrl+O Enter and Ctrl+X.
 
-6. **Restart to test**:
+8. **Restart to test**:
    ```bash
    sudo systemctl restart solar_monitor
    ```
-   now you should already get a TG notification. And if you really want to test it run:
+   now you should already get a TG notification. 
+   > **Note**: If you did not get an notificatin, to check for errors, run:
+   ```bash
+   tail -f /root/Fronius-Solar-Monitor/solar_monitor.log
+   ```
+   And if you really want to test it run:
    ```bash
    sudo reboot
    ```
 
-> **Note**: To check for errors, run:
-   ```bash
-   tail -f /root/Fronius-Solar-Monitor/solar_monitor.log
-   ```
 
 ---
 

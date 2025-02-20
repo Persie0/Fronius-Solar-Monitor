@@ -148,6 +148,19 @@ For a headless setup on Raspberry Pi running DietPi:
 
 > **Note:** If you need to modify the autostart behavior, you can edit `/var/lib/dietpi/dietpi-autostart/custom.sh` directly.
 
+
+---
+To update to latest versions
+go to 
+     ```bash
+     cd Fronius-Solar-Monitor
+     ```
+
+     run git fetch and git merge origin/main
+
+
+you dont need to resetup everything 
+
 ---
 
 ## 📡 Data Monitoring & API

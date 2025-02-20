@@ -7,13 +7,14 @@ SCRIPT_PATH="$PROJECT_DIR/solar_monitor.py"
 LOG_FILE="$PROJECT_DIR/solar_monitor.log"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
-# Step 1: Create the systemd service file
+# Step 1: Create the systemd service file with a dependency on network-online.target
 echo "Creating systemd service file..."
 
 cat << EOF > $SERVICE_FILE
 [Unit]
 Description=Fronius Solar Monitor
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 ExecStart=/usr/bin/python3 $SCRIPT_PATH

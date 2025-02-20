@@ -56,6 +56,8 @@ logging.basicConfig(
 def send_telegram_message(message):
     """Sends a message via Telegram Bot."""
     try:
+        timestamp = time.strftime("%H:%M:%S")
+        message = f"[{timestamp}] {message}"
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         payload = {"chat_id": CHAT_ID, "text": message}
         response = requests.post(url, json=payload)
@@ -85,6 +87,7 @@ def check_solar_data():
 
     try:
         battery_mode = data["Body"]["Data"]["Inverters"]["1"].get("Battery_Mode", "")
+        battery_soc = data["Body"]["Data"].get("SOC", "Unknown")
         battery_is_full = battery_mode == "battery full"
 
         if battery_is_full:
@@ -95,11 +98,11 @@ def check_solar_data():
             consecutive_full_count = 0
 
         if consecutive_full_count >= CONSECUTIVE_FULL_CHECKS and not battery_full_alert_sent:
-            send_telegram_message(get_text("battery_full"))
+            send_telegram_message(f"{get_text('battery_full')} (SOC: {battery_soc}%)")
             battery_full_alert_sent = True
             battery_not_full_alert_sent = False
         elif consecutive_not_full_count >= CONSECUTIVE_NOT_FULL_CHECKS and not battery_not_full_alert_sent:
-            send_telegram_message(get_text("battery_not_full"))
+            send_telegram_message(f"{get_text('battery_not_full')} (SOC: {battery_soc}%)")
             battery_not_full_alert_sent = True
             battery_full_alert_sent = False
 
@@ -115,14 +118,15 @@ if __name__ == "__main__":
     if data:
         try:
             battery_mode = data["Body"]["Data"]["Inverters"]["1"].get("Battery_Mode", "")
+            battery_soc = data["Body"]["Data"].get("SOC", "Unknown")
             battery_is_full = battery_mode == "battery full"
             
             if battery_is_full:
-                send_telegram_message(get_text("battery_full"))
+                send_telegram_message(f"{get_text('battery_full')} ({battery_soc}%)")
                 battery_full_alert_sent = True
                 battery_not_full_alert_sent = False
             else:
-                send_telegram_message(get_text("battery_not_full"))
+                send_telegram_message(f"{get_text('battery_not_full')} ({battery_soc}%)")
                 battery_not_full_alert_sent = True
                 battery_full_alert_sent = False
         except KeyError as e:

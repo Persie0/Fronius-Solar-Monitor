@@ -15,7 +15,14 @@ You can also make changes and use it as part of your larger home automation syst
 3. Based on the readings, the script sends **Telegram notifications** (battery full or not) to the user.
 4. **Alerts are customizable** based on frequency and consecutive checks, reducing false positives.
 
----
+
+## 📋 System Requirements
+
+- **Supported Inverters**: Fronius GEN24 series
+- **Operating System**: Any Python-compatible OS (Linux recommended, Windows also ok)
+- **Python**: 3.6 or higher
+- **Network**: Local network access to Fronius inverter
+
 
 ## 🔧 Installation & Setup
 
@@ -174,7 +181,7 @@ For a headless setup on Raspberry Pi running DietPi or (maybe) also other Linux 
    sudo systemctl restart solar_monitor
    ```
    now you should already get a TG notification. 
-   > **Note**: If you did not get an notificatin, to check for errors, run:
+   > **Note**: If you did not get an notification, to check for errors, run:
    ```bash
    tail -f /root/Fronius-Solar-Monitor/solar_monitor.log
    ```
@@ -266,14 +273,6 @@ For detailed API documentation:
 
 ---
 
-## 📋 System Requirements
-
-- **Supported Inverters**: Fronius GEN24 series
-- **Operating System**: Any Python-compatible OS (Linux recommended, Windows also ok)
-- **Python**: 3.6 or higher
-- **Network**: Local network access to Fronius inverter
-
----
 
 ## 💡 FAQ
 

@@ -55,3 +55,4 @@ chmod +x "$AUTOSTART_SCRIPT"
 sudo dietpi-autostart 7
 
 echo "Autostart setup complete! Reboot to apply changes."
+

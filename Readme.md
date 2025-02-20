@@ -138,7 +138,7 @@ For a headless setup on Raspberry Pi running DietPi:
    
    Simply run the setup script included in the repository:
    ```bash
-   sudo bash setup_autostart.sh
+   sudo bash setup_autostart.sh 
    ```
    
    This script will:

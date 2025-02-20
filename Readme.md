@@ -1,6 +1,4 @@
-Certainly! Here’s the full updated version of the **Fronius Solar Monitor** README, incorporating all the suggested improvements:
 
----
 
 # Fronius Solar Monitor 🌞⚡
 

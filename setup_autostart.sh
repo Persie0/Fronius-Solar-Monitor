@@ -3,7 +3,7 @@
 
 SCRIPT_DIR="/root/Fronius-Solar-Monitor"
 LOG_FILE="$SCRIPT_DIR/solar_monitor.log"
-CRON_JOB="@reboot cd $SCRIPT_DIR && python3 solar_monitor.py >> $LOG_FILE 2>&1 &"
+CRON_JOB="@reboot sleep 30 && cd $SCRIPT_DIR && python3 solar_monitor.py >> $LOG_FILE 2>&1 &"
 
 echo "Setting up Crontab autostart for Fronius Solar Monitor..."
 

@@ -12,6 +12,18 @@ config_path = os.path.join(script_dir, "config.json")
 with open(config_path, "r") as file:
     config = json.load(file)
 
+# Load localization from JSON
+localization_path = os.path.join(script_dir, "localization.json")
+with open(localization_path, "r") as file:
+    localization = json.load(file)
+
+# Set language
+LANGUAGE = config.get("language", "en")
+
+def get_text(key):
+    """Retrieve localized text based on the selected language."""
+    return localization.get(LANGUAGE, {}).get(key, key)
+
 # Telegram Bot details
 TELEGRAM_TOKEN = config["telegram_token"]
 CHAT_ID = config["chat_id"]
@@ -83,11 +95,11 @@ def check_solar_data():
             consecutive_full_count = 0
 
         if consecutive_full_count >= CONSECUTIVE_FULL_CHECKS and not battery_full_alert_sent:
-            send_telegram_message("Battery is now full!")
+            send_telegram_message(get_text("battery_full"))
             battery_full_alert_sent = True
             battery_not_full_alert_sent = False
         elif consecutive_not_full_count >= CONSECUTIVE_NOT_FULL_CHECKS and not battery_not_full_alert_sent:
-            send_telegram_message("Battery is no longer full")
+            send_telegram_message(get_text("battery_not_full"))
             battery_not_full_alert_sent = True
             battery_full_alert_sent = False
 
@@ -95,8 +107,27 @@ def check_solar_data():
         logging.error(f"Missing data field: {e}")
 
 if __name__ == "__main__":
-    logging.info("Starting Solar Monitoring Bot...")
-    send_telegram_message("Starting Solar Monitoring Bot...")
+    logging.info(get_text("bot_start"))
+    send_telegram_message(get_text("bot_start"))
+    
+    # Immediate first check
+    data = fetch_solar_data()
+    if data:
+        try:
+            battery_mode = data["Body"]["Data"]["Inverters"]["1"].get("Battery_Mode", "")
+            battery_is_full = battery_mode == "battery full"
+            
+            if battery_is_full:
+                send_telegram_message(get_text("battery_full"))
+                battery_full_alert_sent = True
+                battery_not_full_alert_sent = False
+            else:
+                send_telegram_message(get_text("battery_not_full"))
+                battery_not_full_alert_sent = True
+                battery_full_alert_sent = False
+        except KeyError as e:
+            logging.error(f"Missing data field on startup: {e}")
+    
     while True:
         check_solar_data()
         time.sleep(CHECK_INTERVAL)

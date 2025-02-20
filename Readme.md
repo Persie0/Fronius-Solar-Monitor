@@ -74,14 +74,16 @@ A more detailed tutorial is available [here](https://core.telegram.org/bots/tuto
 5. Update `config.json` with your personal chat ID:
 
    ```json
-   {
-     "telegram_token": "your-telegram-bot-token",
-     "chat_id": "your-personal-chat-id",
-     "solar_api_ip": "xxx.xxx.xxx.xxx",
-     "check_interval_min": 1,
-     "consecutive_full_checks": 1,
-     "consecutive_not_full_checks": 4
-   }
+{
+  "telegram_token": "your_bot_token",
+  "chat_id": "your_chat_id",
+  "solar_api_ip": "your_solar_api_ip",
+  "check_interval_min": 5,
+  "consecutive_full_checks": 1,
+  "consecutive_not_full_checks": 1,
+  "language": "en"
+}
+
    ```
 
 ---
@@ -97,7 +99,8 @@ Edit `config.json` to match your setup:
   "solar_api_ip": "192.168.1.131",
   "check_interval_min": 1,
   "consecutive_full_checks": 1,
-  "consecutive_not_full_checks": 4
+  "consecutive_not_full_checks": 4,
+  "language": "en"
 }
 ```
 
@@ -109,6 +112,7 @@ Edit `config.json` to match your setup:
 - `check_interval_min`: How often to check the battery status (in minutes)
 - `consecutive_full_checks`: Number of consecutive "battery full" readings required before sending a notification (reduces false positives)
 - `consecutive_not_full_checks`: Number of consecutive "battery not full" readings required before sending a notification
+- `language`: Language in which the notifications will be in, currently supported languages are "en" (English) and "de" (German)
 
 The `consecutive...checks` parameters help prevent notification spam from momentary fluctuations. Higher values mean more stable notifications but slower response time.
 

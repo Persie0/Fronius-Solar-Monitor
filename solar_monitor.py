@@ -98,11 +98,11 @@ def check_solar_data():
             consecutive_full_count = 0
 
         if consecutive_full_count >= CONSECUTIVE_FULL_CHECKS and not battery_full_alert_sent:
-            send_telegram_message(f"{get_text('battery_full')} (SOC: {battery_soc}%)")
+            send_telegram_message(f"{get_text('battery_full')} ({battery_soc}%)")
             battery_full_alert_sent = True
             battery_not_full_alert_sent = False
         elif consecutive_not_full_count >= CONSECUTIVE_NOT_FULL_CHECKS and not battery_not_full_alert_sent:
-            send_telegram_message(f"{get_text('battery_not_full')} (SOC: {battery_soc}%)")
+            send_telegram_message(f"{get_text('battery_not_full')} ({battery_soc}%)")
             battery_not_full_alert_sent = True
             battery_full_alert_sent = False
 

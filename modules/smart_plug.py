@@ -49,15 +49,13 @@ def control_smart_plug(config, turn_on=False):
             version=config["smart_plug"].get("version", 3.5)
         )
         
-        # Turn on or off based on parameter
-        if turn_on:
-            d.turn_on()
-            smart_plug_state = True
-            logging.info("Smart plug turned ON")
-        else:
-            d.turn_off()
-            smart_plug_state = False
-            logging.info("Smart plug turned OFF")
-            
+        # Set status to on or off
+        status = "ON" if turn_on else "OFF"
+        d.turn_on() if turn_on else d.turn_off()
+        
+        # Update state tracking
+        smart_plug_state = turn_on
+        logging.info(f"Smart plug turned {status}")
+        
     except Exception as e:
         logging.error(f"Error controlling smart plug: {e}")

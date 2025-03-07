@@ -4,8 +4,8 @@ import logging
 import os
 
 # Import custom modules
-from telegram_notifier import TelegramNotifier
-from solar_api import SolarAPI
+from modules.telegram_notifier import TelegramNotifier
+from modules.solar_api import SolarAPI
 
 # Get directory of this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -40,7 +40,7 @@ CONSECUTIVE_FULL_CHECKS = config.get("consecutive_full_checks", 1)
 CONSECUTIVE_NOT_FULL_CHECKS = config.get("consecutive_not_full_checks", 1)
 
 # Smart plug configuration (optional)
-import smart_plug
+from modules import smart_plug
 SMART_PLUG_ENABLED = smart_plug.initialize_smart_plug(config)
 
 # Variables to track battery state

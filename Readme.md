@@ -1,6 +1,6 @@
 # Fronius Solar Monitor 🌞⚡
 
-This Python script monitors solar power data from the **Fronius Solar API** and sends Telegram alerts when the battery is full or no longer full. It can also control smart plugs based on battery status.
+This Python script monitors solar power data from a **Fronius Inverter** and sends Telegram alerts when the battery is full or no longer full. It can also control smart plugs based on battery status.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -154,9 +154,9 @@ The smart plug feature allows you to automatically control a Tuya-compatible sma
 | Parameter | Description | Example |
 |-----------|-------------|--------|
 | `enabled` | Enable/disable smart plug functionality | `true` or `false` |
-| `dev_id` | Device ID of your Tuya smart plug | "bfa5c4d187d5ab1234abcd" |
-| `address` | IP address of your smart plug | "192.168.1.230" |
-| `local_key` | Local key for device authentication | "a1b2c3d4e5f6g7h8" |
+| `dev_id` | Device ID of your Tuya smart plug | bfa5c4d187d5ab1234abcd |
+| `address` | IP address of your smart plug | 192.168.1.230 |
+| `local_key` | Local key for device authentication | a1b2c3d4e5f6g7h8 |
 | `version` | Protocol version | 3.5 |
 
 When enabled, the smart plug will turn ON when the battery is full and turn OFF when the battery is no longer full.
@@ -266,14 +266,11 @@ To update to the latest version run in the Fronius-Solar-Monitor folder:
 
 ### Example API Request
 
-To manually check your system's status, enter in your browser:
-
+To verify connectivity with your Fronius inverter, you can test the API endpoint directly in your web browser:
+(Replace *192.168.1.131* with your inverter's IP)
 ```
 http://192.168.1.131/solar_api/v1/GetPowerFlowRealtimeData.fcgi
 ```
-
-(Replace with your inverter's IP)
-
 ### Sample API Response:
 
 ```json

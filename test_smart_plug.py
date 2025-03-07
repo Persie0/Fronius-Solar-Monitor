@@ -30,7 +30,7 @@ except json.JSONDecodeError:
     sys.exit(1)
 
 # Import smart plug module
-import smart_plug
+from modules import smart_plug
 
 def test_smart_plug_toggle():
     """Test function to toggle smart plug on and off every 7 seconds"""

@@ -1,19 +1,30 @@
-
-
 # Fronius Solar Monitor 🌞⚡
 
-This Python script monitors solar power data from the **Fronius Solar API** and sends Telegram alerts when the battery is full or no longer full.
+This Python script monitors solar power data from the **Fronius Solar API** and sends Telegram alerts when the battery is full or no longer full. It can also control smart plugs based on battery status.
+
+## Table of Contents
+- [Overview](#overview)
+- [How it Works](#how-it-works)
+- [System Requirements](#-system-requirements)
+- [Installation & Setup](#-installation--setup)
+- [Data Monitoring & API](#-data-monitoring--api)
+- [Additional Resources](#-additional-resources)
+- [Troubleshooting](#️-troubleshooting)
+- [FAQ](#-faq)
 
 ## Overview
 
 **Fronius Solar Monitor** helps you optimize your solar energy consumption by alerting you when your battery reaches full capacity or drops below it. Perfect for regions where excess energy fed to the grid isn't compensated beyond certain limits.
 You can also make changes and use it as part of your larger home automation system.
 
+The system can automatically control Tuya-compatible smart plugs based on battery status, allowing you to automatically power devices (like water heaters, AC units, or pool pumps) when excess solar energy is available.
+
 ### How it Works
 1. **Fronius Inverter** provides real-time data via the **Solar API** (e.g., battery status, power consumption, etc.).
-2. **Fronius Solar Monitor** retrieves this data using the API and evaluates the battery status.
+2. **Fronius Solar Monitor Script** retrieves this data using the API and evaluates the battery status.
 3. Based on the readings, the script sends **Telegram notifications** (battery full or not) to the user.
 4. **Alerts are customizable** based on frequency and consecutive checks, reducing false positives.
+5. **Smart Plug Control** (optional) automatically manages connected devices based on battery status.
 
 
 ## 📋 System Requirements
@@ -22,6 +33,7 @@ You can also make changes and use it as part of your larger home automation syst
 - **Operating System**: Any Python-compatible OS (Linux recommended, Windows also ok)
 - **Python**: 3.6 or higher
 - **Network**: Local network access to Fronius inverter
+- **Smart Plugs** (optional): Any Tuya-compatible smart plug
 
 
 ## 🔧 Installation & Setup
@@ -31,6 +43,7 @@ You can also make changes and use it as part of your larger home automation syst
 - Python 3.x
 - A Fronius inverter with Solar API
 - Telegram account
+- Tuya-compatible smart plug (optional)
 
 ### Step 1: Install Dependencies
 
@@ -38,7 +51,7 @@ Install the required Python libraries using `pip`:
 
 ```bash
 pip install requests  # Required for making API requests to the Fronius inverter
-pip install requests tinytuya  # Required for smart plug control
+pip install tinytuya  # Required for smart plug control
 ```
 
 > **Note**: The `tinytuya` library is only required if you plan to use the smart plug feature.
@@ -101,9 +114,9 @@ Rename `_config.json` to `config.json` and configure it with your settings:
   "language": "en",
   "smart_plug": {
     "enabled": true,
-    "dev_id": "your-device-id",
+    "dev_id": "bfa03f282eff246980zuioe",
     "address": "192.168.1.230",
-    "local_key": "your-local-key",
+    "local_key": "?quej6(u$e<1<#<<",
     "version": 3.5
   }
 }
@@ -168,15 +181,6 @@ To run the script manually:
 python solar_monitor.py
 ```
 
-#### Testing Smart Plug Functionality
-
-To test if your smart plug is configured correctly, you can use the included test script that toggles the smart plug ON and OFF every 7 seconds:
-
-```bash
-python test_smart_plug.py
-```
-
-This is useful for verifying your smart plug connection and configuration before running the main monitoring script.
 
 #### Automatic Startup on Raspberry Pi (DietPi)
 
@@ -216,7 +220,7 @@ For a headless setup on Raspberry Pi running DietPi or (maybe) also other Linux 
    ```bash
    PROJECT_DIR="/otherpath/Fronius-Solar-Monitor"
    ```
-
+Then save with Ctrl+O, Enter and Ctrl+X.
 
 6. **Setup Auto-Start**:
    Simply run the setup script included in the repository:
@@ -229,7 +233,7 @@ For a headless setup on Raspberry Pi running DietPi or (maybe) also other Linux 
    ```bash
    nano config.json
    ```
-   then copy and paste your configured config.json into it. Then Ctrl+O Enter and Ctrl+X.
+   then copy and paste your configured config.json into it. Then Ctrl+O, Enter and Ctrl+X.
 
 8. **Restart to test**:
    ```bash
@@ -341,11 +345,18 @@ For detailed API documentation:
 
 ## 💡 FAQ
 
-### **Q: Can I use the Solar Monitor with other inverters?**
-A: Currently, the Solar Monitor supports only **Fronius GEN24** inverters. However, you can easily also change the code for your inverter if it can also provide information via an API.
-What you need for that (doable even for a non programmer person):
-- find via an internet search wheter an API is available for you model
-- enter the API url and response togheter with the solar_monitor.py script into e.g. ChatGPT or similar and say it should change it
+### **Q: Can I use the Solar Monitor with other inverters or smart plugs?**
+A: Currently, the Solar Monitor is designed for **Fronius GEN24** inverters and Tuya-compatible smart plugs. However, you can adapt the code for other devices that provide API access:
+
+For other inverters:
+- Check if your inverter model has an available API
+- Find the API documentation and endpoint structure
+- Use the API URL and response format along with the solar_monitor.py script to modify the code (you can use AI tools like ChatGPT to help with the conversion)
+
+For other smart plugs:
+- Verify if your smart plug has an API or protocol that can be accessed via Python
+- Find the required libraries and documentation for your smart plug
+- Modify the smart plug integration code accordingly (AI tools can help with this adaptation)
 
 ---
 

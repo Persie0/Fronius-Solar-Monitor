@@ -4,6 +4,14 @@
     "solar_api_ip": "192.168.1.131",
     "check_interval_min": 1,
     "consecutive_full_checks": 1,
-    "consecutive_not_full_checks": 4
+    "consecutive_not_full_checks": 4,
+    "language": "en",
+    "smart_plug": {
+        "enabled": true,
+        "dev_id": "your-device-id",
+        "address": "192.168.1.230",
+        "local_key": "your-local-key",
+        "version": 3.5
+    }
   }
   

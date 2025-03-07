@@ -37,8 +37,10 @@ You can also make changes and use it as part of your larger home automation syst
 Install the required Python libraries using `pip`:
 
 ```bash
-pip install requests  # Required for making API requests to the Fronius inverter
+pip install requests tinytuya  # Required for API requests and smart plug control
 ```
+
+> **Note**: The `tinytuya` library is only required if you plan to use the smart plug feature.
 
 ### Step 2: Enable the Fronius Solar API
 
@@ -87,15 +89,20 @@ Rename `_config.json` to `config.json` and configure it with your settings:
 
 ```json
 {
-{
   "telegram_token": "6467835642:AAAAAl99Ue14-e2cPqF79KSdOol5-aTr123",
   "chat_id": "-1048737232455",
   "solar_api_ip": "192.168.1.131",
   "check_interval_min": 1,
   "consecutive_full_checks": 1,
   "consecutive_not_full_checks": 4,
-  "language": "en"
-}
+  "language": "en",
+  "smart_plug": {
+    "enabled": true,
+    "dev_id": "your-device-id",
+    "address": "192.168.1.230",
+    "local_key": "your-local-key",
+    "version": 3.5
+  }
 }
 ```
 
@@ -110,8 +117,33 @@ Rename `_config.json` to `config.json` and configure it with your settings:
 | `consecutive_full_checks` | Readings needed before "battery full" alert | 1-3 |
 | `consecutive_not_full_checks` | Readings needed before "battery not full" alert | 2-5 |
 | `language` | Notification language | "en" or "de" |
+| `smart_plug` | Configuration for smart plug control | See below |
 
 > **Note**: Higher `consecutive_checks` values reduce false alerts but increase notification delay.
+
+> **Smart Plug Tip**: Any Tuya-compatible smart plug will work with this system. These are widely available on AliExpress for around $5, making it an affordable addition to your solar monitoring setup.
+
+#### Smart Plug Configuration
+
+The smart plug feature allows you to automatically control a Tuya-compatible smart plug based on battery status:
+
+| Parameter | Description | Example |
+|-----------|-------------|--------|
+| `enabled` | Enable/disable smart plug functionality | `true` or `false` |
+| `dev_id` | Device ID of your Tuya smart plug | "bfa5c4d187d5ab1234abcd" |
+| `address` | IP address of your smart plug | "192.168.1.230" |
+| `local_key` | Local key for device authentication | "a1b2c3d4e5f6g7h8" |
+| `version` | Protocol version | 3.5 |
+
+When enabled, the smart plug will turn ON when the battery is full and turn OFF when the battery is no longer full.
+
+##### Setting Up TinyTuya
+
+To find your device ID and local key for the smart plug configuration, you can use the TinyTuya library. Visit the official TinyTuya repository for detailed setup instructions:
+
+[https://github.com/jasonacox/tinytuya](https://github.com/jasonacox/tinytuya)
+
+The repository provides tools to scan your network for Tuya devices, obtain device IDs, and retrieve local keys needed for the configuration.
 
 ### Step 5: Run the Monitor
 
@@ -122,6 +154,16 @@ To run the script manually:
 ```bash
 python solar_monitor.py
 ```
+
+#### Testing Smart Plug Functionality
+
+To test if your smart plug is configured correctly, you can use the included test script that toggles the smart plug ON and OFF every 7 seconds:
+
+```bash
+python test_smart_plug.py
+```
+
+This is useful for verifying your smart plug connection and configuration before running the main monitoring script.
 
 #### Automatic Startup on Raspberry Pi (DietPi)
 

@@ -1,8 +1,11 @@
 import time
 import json
-import requests
 import logging
 import os
+
+# Import custom modules
+from telegram_notifier import TelegramNotifier
+from solar_api import SolarAPI
 
 # Get directory of this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -24,13 +27,10 @@ def get_text(key):
     """Retrieve localized text based on the selected language."""
     return localization.get(LANGUAGE, {}).get(key, key)
 
-# Telegram Bot details
-TELEGRAM_TOKEN = config["telegram_token"]
-CHAT_ID = config["chat_id"]
-
-# Hardcoded API path with dynamic IP
+# Initialize modules
 SOLAR_API_IP = config["solar_api_ip"]
-API_URL = f"http://{SOLAR_API_IP}/solar_api/v1/GetPowerFlowRealtimeData.fcgi"
+solar_api = SolarAPI(SOLAR_API_IP)
+telegram = TelegramNotifier(config["telegram_token"], config["chat_id"])
 
 # Convert minutes to seconds
 CHECK_INTERVAL = config["check_interval_min"] * 60
@@ -38,6 +38,10 @@ CHECK_INTERVAL = config["check_interval_min"] * 60
 # Get consecutive checks required from config, default to 1 if not specified
 CONSECUTIVE_FULL_CHECKS = config.get("consecutive_full_checks", 1)
 CONSECUTIVE_NOT_FULL_CHECKS = config.get("consecutive_not_full_checks", 1)
+
+# Smart plug configuration (optional)
+import smart_plug
+SMART_PLUG_ENABLED = smart_plug.initialize_smart_plug(config)
 
 # Variables to track battery state
 battery_full_alert_sent = False
@@ -55,24 +59,18 @@ logging.basicConfig(
 
 def send_telegram_message(message):
     """Sends a message via Telegram Bot."""
-    try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        payload = {"chat_id": CHAT_ID, "text": message}
-        response = requests.post(url, json=payload)
-        response.raise_for_status()
-        logging.info("Telegram message sent successfully: %s", message)
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to send Telegram message: {e}")
+    telegram.send_message(message)
+
+def control_smart_plug(turn_on=False):
+    """Controls the smart plug if enabled."""
+    if not SMART_PLUG_ENABLED:
+        return
+    
+    smart_plug.control_smart_plug(config, turn_on)
 
 def fetch_solar_data():
     """Fetches real-time solar power data."""
-    try:
-        response = requests.get(API_URL, timeout=5)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error fetching solar data: {e}")
-        return None
+    return solar_api.fetch_data()
 
 def check_solar_data():
     """Checks battery status and sends alerts if needed."""
@@ -84,9 +82,7 @@ def check_solar_data():
         return
 
     try:
-        battery_mode = data["Body"]["Data"]["Inverters"]["1"].get("Battery_Mode", "")
-        battery_soc = data["Body"]["Data"]["Inverters"]["1"].get("SOC", "Unknown")
-        battery_is_full = battery_mode == "battery full"
+        battery_mode, battery_soc, battery_is_full = solar_api.get_battery_status(data)
 
         if battery_is_full:
             consecutive_full_count += 1
@@ -99,10 +95,14 @@ def check_solar_data():
             send_telegram_message(f"{get_text('battery_full')} ({battery_soc}%)")
             battery_full_alert_sent = True
             battery_not_full_alert_sent = False
+            # Turn on smart plug when battery is full
+            control_smart_plug(turn_on=True)
         elif consecutive_not_full_count >= CONSECUTIVE_NOT_FULL_CHECKS and not battery_not_full_alert_sent:
             send_telegram_message(f"{get_text('battery_not_full')} ({battery_soc}%)")
             battery_not_full_alert_sent = True
             battery_full_alert_sent = False
+            # Turn off smart plug when battery is not full
+            control_smart_plug(turn_on=False)
 
     except KeyError as e:
         logging.error(f"Missing data field: {e}")
@@ -115,18 +115,20 @@ if __name__ == "__main__":
     data = fetch_solar_data()
     if data:
         try:
-            battery_mode = data["Body"]["Data"]["Inverters"]["1"].get("Battery_Mode", "")
-            battery_soc = data["Body"]["Data"]["Inverters"]["1"].get("SOC", "Unknown")
-            battery_is_full = battery_mode == "battery full"
+            battery_mode, battery_soc, battery_is_full = solar_api.get_battery_status(data)
             
             if battery_is_full:
                 send_telegram_message(f"{get_text('battery_full')} ({battery_soc}%)")
                 battery_full_alert_sent = True
                 battery_not_full_alert_sent = False
+                # Turn on smart plug when battery is full
+                control_smart_plug(turn_on=True)
             else:
                 send_telegram_message(f"{get_text('battery_not_full')} ({battery_soc}%)")
                 battery_not_full_alert_sent = True
                 battery_full_alert_sent = False
+                # Turn off smart plug when battery is not full
+                control_smart_plug(turn_on=False)
         except KeyError as e:
             logging.error(f"Missing data field on startup: {e}")
     

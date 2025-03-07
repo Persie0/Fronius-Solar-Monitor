@@ -37,7 +37,8 @@ You can also make changes and use it as part of your larger home automation syst
 Install the required Python libraries using `pip`:
 
 ```bash
-pip install requests tinytuya  # Required for API requests and smart plug control
+pip install requests  # Required for making API requests to the Fronius inverter
+pip install requests tinytuya  # Required for smart plug control
 ```
 
 > **Note**: The `tinytuya` library is only required if you plan to use the smart plug feature.
@@ -65,6 +66,8 @@ The **Solar API** must be enabled on **Fronius GEN24** devices to avoid 404 erro
    ![Solar API](docs/pv.jpg)
 
 ### Step 3: Create a Telegram Bot
+
+A more detailed tutorial is available [here](https://core.telegram.org/bots/tutorial#obtain-your-bot-token).
 
 1. **Create Your Bot**
    - Open Telegram and search for **@BotFather**

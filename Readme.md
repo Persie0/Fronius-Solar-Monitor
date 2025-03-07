@@ -84,7 +84,7 @@ The **Solar API** must be enabled on **Fronius GEN24** devices to avoid 404 erro
    ![Response](docs/tgchatid.png)
 
 ### Step 4: Configure the Application
-
+(more on the smart plug settings further down at **Setting Up TinyTuya**)
 Rename `_config.json` to `config.json` and configure it with your settings:
 
 ```json
@@ -123,6 +123,14 @@ Rename `_config.json` to `config.json` and configure it with your settings:
 
 > **Smart Plug Tip**: Any Tuya-compatible smart plug will work with this system. These are widely available on AliExpress for around $5, making it an affordable addition to your solar monitoring setup.
 
+##### Setting Up TinyTuya
+
+To find your device ID and local key for the smart plug configuration, you can use the TinyTuya library. Visit the official TinyTuya repository for detailed setup instructions:
+
+[https://github.com/jasonacox/tinytuya](https://github.com/jasonacox/tinytuya)
+
+The repository provides tools to scan your network for Tuya devices, obtain device IDs, and retrieve local keys needed for the configuration.
+
 #### Smart Plug Configuration
 
 The smart plug feature allows you to automatically control a Tuya-compatible smart plug based on battery status:
@@ -137,13 +145,15 @@ The smart plug feature allows you to automatically control a Tuya-compatible sma
 
 When enabled, the smart plug will turn ON when the battery is full and turn OFF when the battery is no longer full.
 
-##### Setting Up TinyTuya
+#### Testing TinyTuya Setup
 
-To find your device ID and local key for the smart plug configuration, you can use the TinyTuya library. Visit the official TinyTuya repository for detailed setup instructions:
+To test if your smart plug is configured correctly, you can use the included test script that toggles the smart plug ON and OFF every 5 seconds:
 
-[https://github.com/jasonacox/tinytuya](https://github.com/jasonacox/tinytuya)
+```bash
+python test_smart_plug.py
+```
 
-The repository provides tools to scan your network for Tuya devices, obtain device IDs, and retrieve local keys needed for the configuration.
+This is useful for verifying your smart plug connection and configuration before running the main monitoring script.
 
 ### Step 5: Run the Monitor
 

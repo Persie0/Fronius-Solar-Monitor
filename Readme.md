@@ -24,7 +24,7 @@ The system can automatically control Tuya-compatible smart plugs based on batter
 2. **Fronius Solar Monitor Script** retrieves this data using the API and evaluates the battery status.
 3. Based on the readings, the script sends **Telegram notifications** (battery full or not) to the user.
 4. **Alerts are customizable** based on frequency and consecutive checks, reducing false positives.
-5. **Smart Plug Control** (optional) automatically manages connected devices based on battery status.
+5. **Smart Plug Control** (optional) automatically manages connected devices based on battery status and/or PV production.
 
 
 ## 📋 System Requirements
@@ -112,6 +112,8 @@ Rename `_config.json` to `config.json` and configure it with your settings:
   "consecutive_full_checks": 1,
   "consecutive_not_full_checks": 4,
   "language": "en",
+  "smart_plug_mode": 1,
+  "pv_threshold": 500,
   "smart_plug": {
     "enabled": true,
     "dev_id": "bfa03f282eff246980zuioe",
@@ -133,6 +135,8 @@ Rename `_config.json` to `config.json` and configure it with your settings:
 | `consecutive_full_checks` | Readings needed before "battery full" alert | 1-3 |
 | `consecutive_not_full_checks` | Readings needed before "battery not full" alert | 2-5 |
 | `language` | Notification language | "en" or "de" |
+| `smart_plug_mode` | Control mode for smart plug | 1 or 2 (see below) |
+| `pv_threshold` | PV production threshold in watts | 500-1000 (depends on your devices) |
 | `smart_plug` | Configuration for smart plug control | See below |
 
 > **Note**: Higher `consecutive_checks` values reduce false alerts but increase notification delay.
@@ -149,7 +153,23 @@ The repository provides tools to scan your network for Tuya devices, obtain devi
 
 #### Smart Plug Configuration
 
-The smart plug feature allows you to automatically control a Tuya-compatible smart plug based on battery status:
+The smart plug feature allows you to automatically control a Tuya-compatible smart plug based on selected control mode.
+
+##### Smart Plug Control Modes:
+
+1. **Mode 1: Battery Status Only** (Default)
+   - The smart plug will turn ON when the battery is full
+   - The smart plug will turn OFF when the battery is no longer full
+   - This is the original behavior
+
+2. **Mode 2: Battery Status + PV Production**
+   - The smart plug will turn ON only when:
+     - The battery is full AND
+     - Current PV production is above the threshold set in `pv_threshold`
+   - The smart plug will turn OFF when either condition is not met
+   - This mode helps ensure devices only run when there's sufficient ongoing solar production
+
+##### Smart Plug Parameters:
 
 | Parameter | Description | Example |
 |-----------|-------------|--------|
@@ -158,8 +178,6 @@ The smart plug feature allows you to automatically control a Tuya-compatible sma
 | `address` | IP address of your smart plug | 192.168.1.230 |
 | `local_key` | Local key for device authentication | a1b2c3d4e5f6g7h8 |
 | `version` | Protocol version | 3.5 |
-
-When enabled, the smart plug will turn ON when the battery is full and turn OFF when the battery is no longer full.
 
 #### Testing TinyTuya Setup
 

@@ -43,6 +43,12 @@ CONSECUTIVE_NOT_FULL_CHECKS = config.get("consecutive_not_full_checks", 1)
 from modules import smart_plug
 SMART_PLUG_ENABLED = smart_plug.initialize_smart_plug(config)
 
+# Smart plug control mode
+# Mode 1: Control based on battery status only
+# Mode 2: Control based on battery status and PV production
+SMART_PLUG_MODE = config.get("smart_plug_mode", 1)
+PV_THRESHOLD = config.get("pv_threshold", 0)  # Threshold in watts
+
 # Variables to track battery state
 battery_full_alert_sent = False
 battery_not_full_alert_sent = False
@@ -72,6 +78,24 @@ def fetch_solar_data():
     """Fetches real-time solar power data."""
     return solar_api.fetch_data()
 
+def should_turn_on_smart_plug(data, battery_is_full):
+    """Determines if the smart plug should be turned on based on the configured mode."""
+    # Mode 1: Control based only on battery status
+    if SMART_PLUG_MODE == 1:
+        return battery_is_full
+    
+    # Mode 2: Control based on battery status and PV production
+    elif SMART_PLUG_MODE == 2:
+        if not battery_is_full:
+            return False
+        
+        # Check if PV production is above threshold
+        pv_production = solar_api.get_pv_production(data)
+        return pv_production >= PV_THRESHOLD
+    
+    # Default case
+    return battery_is_full
+
 def check_solar_data():
     """Checks battery status and sends alerts if needed."""
     global battery_full_alert_sent, battery_not_full_alert_sent
@@ -95,8 +119,20 @@ def check_solar_data():
             send_telegram_message(f"{get_text('battery_full')} ({battery_soc}%)")
             battery_full_alert_sent = True
             battery_not_full_alert_sent = False
-            # Turn on smart plug when battery is full
-            control_smart_plug(turn_on=True)
+
+            # Determine if smart plug should be turned on
+            turn_on = should_turn_on_smart_plug(data, battery_is_full)
+            if turn_on:
+                control_smart_plug(turn_on=True)
+                if SMART_PLUG_MODE == 2:
+                    pv_production = solar_api.get_pv_production(data)
+                    send_telegram_message(f"{get_text('smart_plug_on')} (PV: {pv_production}W)")
+            else:
+                control_smart_plug(turn_on=False)
+                if SMART_PLUG_MODE == 2:
+                    pv_production = solar_api.get_pv_production(data)
+                    send_telegram_message(f"{get_text('smart_plug_off')} (PV: {pv_production}W < {PV_THRESHOLD}W)")
+
         elif consecutive_not_full_count >= CONSECUTIVE_NOT_FULL_CHECKS and not battery_not_full_alert_sent:
             send_telegram_message(f"{get_text('battery_not_full')} ({battery_soc}%)")
             battery_not_full_alert_sent = True
@@ -121,8 +157,14 @@ if __name__ == "__main__":
                 send_telegram_message(f"{get_text('battery_full')} ({battery_soc}%)")
                 battery_full_alert_sent = True
                 battery_not_full_alert_sent = False
-                # Turn on smart plug when battery is full
-                control_smart_plug(turn_on=True)
+                
+                # Determine if smart plug should be turned on
+                turn_on = should_turn_on_smart_plug(data, battery_is_full)
+                control_smart_plug(turn_on=turn_on)
+                
+                if SMART_PLUG_MODE == 2 and turn_on:
+                    pv_production = solar_api.get_pv_production(data)
+                    send_telegram_message(f"{get_text('smart_plug_on')} (PV: {pv_production}W)")
             else:
                 send_telegram_message(f"{get_text('battery_not_full')} ({battery_soc}%)")
                 battery_not_full_alert_sent = True

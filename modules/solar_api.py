@@ -32,3 +32,16 @@ class SolarAPI:
         except KeyError as e:
             logging.error(f"Missing data field: {e}")
             return None, None, False
+            
+    def get_pv_production(self, data):
+        """Extracts current PV production in watts from API response data."""
+        if not data:
+            return 0
+            
+        try:
+            # Get PV production value from the API response
+            pv_production = data["Body"]["Data"]["Site"].get("P_PV", 0)
+            return pv_production
+        except KeyError as e:
+            logging.error(f"Missing PV production data field: {e}")
+            return 0

@@ -2,12 +2,16 @@
     "en": {
       "bot_start": "Starting Solar Monitoring Bot...",
       "battery_full": "Battery is now full!",
-      "battery_not_full": "Battery is no longer full"
+      "battery_not_full": "Battery is no longer full",
+      "smart_plug_on": "Smart plug turned ON",
+      "smart_plug_off": "Smart plug turned OFF due to low PV production"
     },
     "de": {
       "bot_start": "Solar-Ueberwachungsbot wird gestartet...",
       "battery_full": "Die Batterie ist jetzt voll!",
-      "battery_not_full": "Die Batterie ist nicht mehr voll"
+      "battery_not_full": "Die Batterie ist nicht mehr voll",
+      "smart_plug_on": "Smart Plug wurde eingeschaltet",
+      "smart_plug_off": "Smart Plug wurde wegen niedriger PV-Erzeugung ausgeschaltet"
     }
   }
   

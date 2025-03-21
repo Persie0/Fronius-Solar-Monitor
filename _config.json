@@ -6,6 +6,8 @@
     "consecutive_full_checks": 1,
     "consecutive_not_full_checks": 4,
     "language": "en",
+    "smart_plug_mode": 1,
+    "pv_threshold": 500,
     "smart_plug": {
         "enabled": true,
         "dev_id": "your-device-id",
